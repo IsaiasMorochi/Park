@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
 
-    private static final int MY_LOCATION_REQUEST_CODE = 4;
+
     private GoogleMap mMap;
 
 
