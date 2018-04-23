@@ -85,11 +85,11 @@ public class Home extends AppCompatActivity {
                     && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }else {
-                locationManager.removeUpdates(locationListener);
+//                locationManager.removeUpdates(locationListener);
             }
 
         }else {
-            locationManager.removeUpdates(locationListener);
+//            locationManager.removeUpdates(locationListener);
         }
     }
 
@@ -101,10 +101,10 @@ public class Home extends AppCompatActivity {
                     && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }else {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+//                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
             }
         }else {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
         }
 
     }
