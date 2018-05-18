@@ -72,11 +72,58 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         uiSettings.setZoomControlsEnabled(true);
 
         // puntos de log lat
-        LatLng punto1 = new LatLng(-17.798576, -63.190923);
+        LatLng punto1 = new LatLng(-17.797398, -63.190731);
+        LatLng punto2 = new LatLng(-17.7961074, -63.1900271);
+        LatLng punto3 = new LatLng(-17.795728, -63.189511);
+        LatLng punto4 = new LatLng(-17.79673, -63.188387);
+        LatLng punto5 = new LatLng(-17.794259, -63.187067);
+        LatLng punto6 = new LatLng(-17.79496, -63.186896);
+        LatLng punto7 = new LatLng(-17.796946, -63.187389);
+        LatLng punto8 = new LatLng(-17.800362, -63.18733);
+
 
         // marcador
-        mMap.addMarker(new MarkerOptions().position(punto1).title("Cooperativa Fatima Obispo Peña 63, Santa Cruz de la Sierra").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
-        mMap.addMarker(new MarkerOptions().position(punto1).snippet("Este es"));
+        mMap.addMarker(new MarkerOptions()
+                .position(punto1)
+                .title("Parque Fatima")
+                .snippet("Av. Grigota, Calle Antonio Suarez")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        mMap.addMarker(new MarkerOptions()
+                .position(punto2)
+                .title("Parque Grigota")
+                .snippet("Av. Grigota, Entre Mariano Duran y Jose Salvatierra")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        mMap.addMarker(new MarkerOptions()
+                .position(punto3)
+                .title("Parqueo FUNSAR")
+                .snippet("Av. Grigota, Calle Mariano Duran Canelas")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        mMap.addMarker(new MarkerOptions()
+                .position(punto4)
+                .title("Parque Aladino 2")
+                .snippet("Calle Juan Manuel Aponte" )
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        mMap.addMarker(new MarkerOptions()
+                .position(punto5)
+                .title("Parque Mercado Modelo Grigota")
+                .snippet("Av. Omar Chavez Ortiz")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        mMap.addMarker(new MarkerOptions()
+                .position(punto6)
+                .title("SN" +'\n'+ "Av. Omar Chavez Ortiz" )
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        mMap.addMarker(new MarkerOptions()
+                .position(punto7)
+                .title("Parqueo PRINX")
+                .snippet("Av. Omar Chavez Ortiz, Calle Pauro")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        mMap.addMarker(new MarkerOptions()
+                .position(punto8)
+                .title("Parqueo Melfi Chucallo")
+                .snippet("Calle Iganacio Ceballos")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+
 
 
         //efectos de camara sobre los puntos
