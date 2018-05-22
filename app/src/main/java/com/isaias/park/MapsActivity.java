@@ -126,6 +126,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // The user has re-tapped on the marker which was already showing an info window.
                 if (marker.equals(mSelectedMarker)) {
                     // Retorna true indicando que consumismos el evento
+                    mesjoff();
+
                     mMap.clear();
                     addMarkersToMap();
                     mSelectedMarker = null;
@@ -135,6 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //registra el marcador
                 mSelectedMarker = marker;
 
+                mesjok();
                 //traza su ruta
                 String url = obtenerDireccionesURL(userLocation, marker.getPosition());
                 DownloadTask downloadTask = new DownloadTask();
@@ -154,14 +157,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void mesjoff() {
-        Toast.makeText(this, "off", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Limpiando ruta", Toast.LENGTH_SHORT).show();
     }
 
     private void mesjok() {
-        Toast.makeText(this, "ok", Toast.LENGTH_SHORT).show();
-    }
-    private void selectmark() {
-        Toast.makeText(this, "ok", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Dibujando ruta", Toast.LENGTH_SHORT).show();
     }
 
 
