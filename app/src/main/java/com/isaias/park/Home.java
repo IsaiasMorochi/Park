@@ -51,7 +51,7 @@ public class Home extends AppCompatActivity {
 
     private void AlertNoGps(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("El sistema GPS es desactivado Desea activarlo?")
+        builder.setMessage("El sistema GPS esta desactivado Desea activarlo?")
                 .setCancelable(false)
                 .setPositiveButton("Si", new DialogInterface.OnClickListener() {
                     @Override
