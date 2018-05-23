@@ -7,7 +7,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -17,10 +19,18 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -52,8 +62,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private LatLng userLocation;
     private Marker mSelectedMarker;
+    private Marker marker;
     private boolean mLocationPermissionGranted;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+
+
+
 
 
     private static final LatLng punto1 = new LatLng(-17.797398, -63.190731);
@@ -83,7 +97,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, (Activity) getApplicationContext(), 10);
             dialog.show();
         }
+
+
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        autocompleteFragment.setFilter(new AutocompleteFilter.Builder().setCountry("BO").build());
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                final LatLng latLngLoc = place.getLatLng();
+
+                if(marker!=null){
+                    marker.remove();
+                }
+                marker = mMap.addMarker(new MarkerOptions().position(latLngLoc).title(place.getName().toString()));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+            }
+
+            @Override
+            public void onError(Status status) {
+                Toast.makeText(MapsActivity.this, ""+status.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
+
+
+    public void onMapSearch(View view) {
+        EditText locationSearch = (EditText) findViewById(R.id.place_autocomplete_fragment);
+        String location = locationSearch.getText().toString();
+        List<Address> addressList = null;
+
+        if (location != null || !location.equals("")) {
+            Geocoder geocoder = new Geocoder(this);
+            try {
+                addressList = geocoder.getFromLocationName(location, 1);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Address address = addressList.get(0);
+            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        }
+    }
+
+
+
 
 
     /**
@@ -136,6 +199,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 //registra el marcador
                 mSelectedMarker = marker;
+
+                mSelectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
 
                 mesjok();
                 //traza su ruta
@@ -220,48 +285,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .position(punto1)
                 .title("Parque Fatima")
                 .snippet("Av. Grigota, Calle Antonio Suarez")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
         mMap.addMarker(new MarkerOptions()
                 .position(punto2)
                 .title("Parque Grigota")
                 .snippet("Av. Grigota, Entre Mariano Duran y Jose Salvatierra")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
         mMap.addMarker(new MarkerOptions()
                 .position(punto3)
                 .title("Parqueo FUNSAR")
                 .snippet("Av. Grigota, Calle Mariano Duran Canelas")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
         mMap.addMarker(new MarkerOptions()
                 .position(punto4)
                 .title("Parque Aladino 2")
                 .snippet("Calle Juan Manuel Aponte")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
         mMap.addMarker(new MarkerOptions()
                 .position(punto5)
                 .title("Parque Mercado Modelo Grigota")
                 .snippet("Av. Omar Chavez Ortiz")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 
         mMap.addMarker(new MarkerOptions()
                 .position(punto6)
                 .title("SN" + '\n' + "Av. Omar Chavez Ortiz")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
         mMap.addMarker(new MarkerOptions()
                 .position(punto7)
                 .title("Parqueo PRINX")
                 .snippet("Av. Omar Chavez Ortiz, Calle Pauro")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
         mMap.addMarker(new MarkerOptions()
                 .position(punto8)
                 .title("Parqueo Melfi Chucallo")
                 .snippet("Calle Iganacio Ceballos")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
     }
 
@@ -508,6 +573,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return poly;
         }
     }
+
+
+
 
 
 }
