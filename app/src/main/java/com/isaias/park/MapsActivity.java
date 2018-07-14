@@ -43,6 +43,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import com.google.firebase.database.ValueEventListener;
+import com.isaias.park.model.Parqueos;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,8 +76,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
 
-
-
+    List<Parqueos> parqueoList;
+    Parqueos model;
+    DatabaseReference databaseReference;
 
     private static final LatLng punto1 = new LatLng(-17.797398, -63.190731);
     private static final LatLng punto2 = new LatLng(-17.7961074, -63.1900271);
@@ -86,6 +94,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        //definicion de referencia a la BD
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("Parqueos");
+
 
         //verificacion de servicios actualizados de Google Maps
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
@@ -125,29 +137,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
     }
-
-
-    public void onMapSearch(View view) {
-        EditText locationSearch = (EditText) findViewById(R.id.place_autocomplete_fragment);
-        String location = locationSearch.getText().toString();
-        List<Address> addressList = null;
-
-        if (location != null || !location.equals("")) {
-            Geocoder geocoder = new Geocoder(this);
-            try {
-                addressList = geocoder.getFromLocationName(location, 1);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Address address = addressList.get(0);
-            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        }
-    }
-
-
 
 
 
@@ -196,14 +185,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.clear();
                     addMarkersToMap();
                     mSelectedMarker = null;
-
                     return true;
                 }
                 //registra el marcador
                 mSelectedMarker = marker;
-
                 mSelectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
-
                 mesjok();
                 //traza su ruta
                 String url = obtenerDireccionesURL(userLocation, marker.getPosition());
@@ -280,56 +266,86 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
     // marcadores
     private void addMarkersToMap() {
+//        String name,dire,tele;
 
-        mMap.addMarker(new MarkerOptions()
-                .position(punto1)
-                .title("Parque Fatima")
-                .snippet("Av. Grigota, Calle Antonio Suarez")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        //leeremos un objeto de tipo Estudiante
+//        GenericTypeIndicator<Parqueos> t = new GenericTypeIndicator<Parqueos>() {};
+//        Parqueos paqueo = dataSnapshot.getValue(t);
 
-        mMap.addMarker(new MarkerOptions()
-                .position(punto2)
-                .title("Parque Grigota")
-                .snippet("Av. Grigota, Entre Mariano Duran y Jose Salvatierra")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
-        mMap.addMarker(new MarkerOptions()
-                .position(punto3)
-                .title("Parqueo FUNSAR")
-                .snippet("Av. Grigota, Calle Mariano Duran Canelas")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+//        String[] latlong =  "-34.8799074,174.7565664".split(",");
+//        double latitude = Double.parseDouble(latlong[0]);
+//        double longitude = Double.parseDouble(latlong[1]);
+//        LatLng location = new LatLng(latitude, longitude);
 
-        mMap.addMarker(new MarkerOptions()
-                .position(punto4)
-                .title("Parque Aladino 2")
-                .snippet("Calle Juan Manuel Aponte")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//             name = parqueoList.get(1).NOMBRE;
+//             dire = parqueoList.get(1).DIRECCION;
 
-        mMap.addMarker(new MarkerOptions()
-                .position(punto5)
-                .title("Parque Mercado Modelo Grigota")
-                .snippet("Av. Omar Chavez Ortiz")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+//           double lat = Double.parseDouble(parqueoList.get(1).ylatitud);
+//           double log = Double.parseDouble(parqueoList.get(1).xlongitud);
+//           punto = new LatLng(lat,log);
 
-        mMap.addMarker(new MarkerOptions()
-                .position(punto6)
-                .title("SN" + '\n' + "Av. Omar Chavez Ortiz")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
-        mMap.addMarker(new MarkerOptions()
-                .position(punto7)
-                .title("Parqueo PRINX")
-                .snippet("Av. Omar Chavez Ortiz, Calle Pauro")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        Toast.makeText(getApplicationContext(),"ok", Toast.LENGTH_SHORT);
 
-        mMap.addMarker(new MarkerOptions()
-                .position(punto8)
-                .title("Parqueo Melfi Chucallo")
-                .snippet("Calle Iganacio Ceballos")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
+//             mMap.addMarker(new MarkerOptions()
+//                     .position(punto1)
+//                     .title(parqueoList.get(1).NOMBRE)
+//                     .snippet(parqueoList.get(1).DIRECCION)
+//                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+//             );
+
+
+//        mMap.addMarker(new MarkerOptions()
+//                .position(punto1)
+//                .title("Parque Fatima")
+//                .snippet("Av. Grigota, Calle Antonio Suarez")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+//        mMap.addMarker(new MarkerOptions()
+//                .position(punto2)
+//                .title("Parque Grigota")
+//                .snippet("Av. Grigota, Entre Mariano Duran y Jose Salvatierra")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//
+//        mMap.addMarker(new MarkerOptions()
+//                .position(punto3)
+//                .title("Parqueo FUNSAR")
+//                .snippet("Av. Grigota, Calle Mariano Duran Canelas")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+//
+//        mMap.addMarker(new MarkerOptions()
+//                .position(punto4)
+//                .title("Parque Aladino 2")
+//                .snippet("Calle Juan Manuel Aponte")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//
+//        mMap.addMarker(new MarkerOptions()
+//                .position(punto5)
+//                .title("Parque Mercado Modelo Grigota")
+//                .snippet("Av. Omar Chavez Ortiz")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+//
+//        mMap.addMarker(new MarkerOptions()
+//                .position(punto6)
+//                .title("SN" + '\n' + "Av. Omar Chavez Ortiz")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//
+//        mMap.addMarker(new MarkerOptions()
+//                .position(punto7)
+//                .title("Parqueo PRINX")
+//                .snippet("Av. Omar Chavez Ortiz, Calle Pauro")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+//
+//        mMap.addMarker(new MarkerOptions()
+//                .position(punto8)
+//                .title("Parqueo Melfi Chucallo")
+//                .snippet("Calle Iganacio Ceballos")
+//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
     }
 
     //ubicacion del usuario
@@ -359,25 +375,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
     //    Trazar ruta ORIGEN y DESTINO
     private String obtenerDireccionesURL(LatLng origin, LatLng dest) {
-
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
-
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
-
         String sensor = "sensor=false";
-
         String parameters = str_origin + "&" + str_dest + "&" + sensor;
-
         String output = "json";
-
         String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
-
         return url;
     }
-
 
     private String downloadUrl(String strUrl) throws IOException {
         String data = "";
@@ -388,26 +395,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             // Creamos una conexion http
             urlConnection = (HttpURLConnection) url.openConnection();
-
             // Conectamos
             urlConnection.connect();
-
             // Leemos desde URL
             iStream = urlConnection.getInputStream();
-
             BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
-
             StringBuffer sb = new StringBuffer();
-
             String line = "";
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
-
             data = sb.toString();
-
             br.close();
-
         } catch (Exception e) {
             Log.d("Exception", e.toString());
         } finally {
@@ -417,15 +416,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return data;
     }
 
-
     private class DownloadTask extends AsyncTask<String, Void, String> {
 
         @SuppressLint("LongLogTag")
         @Override
         protected String doInBackground(String... url) {
-
             String data = "";
-
             try {
                 data = downloadUrl(url[0]);
             } catch (Exception e) {
@@ -433,17 +429,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             return data;
         }
-
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-
             ParserTask parserTask = new ParserTask();
-
             parserTask.execute(result);
         }
     }
-
 
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
@@ -452,7 +444,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             JSONObject jObject;
             List<List<HashMap<String, String>>> routes = null;
-
             try {
                 jObject = new JSONObject(jsonData[0]);
                 DirectionsJSONParser parser = new DirectionsJSONParser();
@@ -468,21 +459,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
             ArrayList<LatLng> points = null;
             PolylineOptions lineOptions = null;
-            MarkerOptions markerOptions = new MarkerOptions();
 
             for (int i = 0; i < result.size(); i++) {
                 points = new ArrayList<LatLng>();
                 lineOptions = new PolylineOptions();
 
                 List<HashMap<String, String>> path = result.get(i);
-
                 for (int j = 0; j < path.size(); j++) {
                     HashMap<String, String> point = path.get(j);
-
                     double lat = Double.parseDouble(point.get("lat"));
                     double lng = Double.parseDouble(point.get("lng"));
                     LatLng position = new LatLng(lat, lng);
-
                     points.add(position);
                 }
 
@@ -496,7 +483,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
     public class DirectionsJSONParser {
 
         public List<List<HashMap<String, String>>> parse(JSONObject jObject) {
@@ -507,9 +493,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             JSONArray jSteps = null;
 
             try {
-
                 jRoutes = jObject.getJSONArray("routes");
-
                 for (int i = 0; i < jRoutes.length(); i++) {
                     jLegs = ((JSONObject) jRoutes.get(i)).getJSONArray("legs");
                     List path = new ArrayList<HashMap<String, String>>();
