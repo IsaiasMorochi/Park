@@ -13,4 +13,12 @@
     <color name="pink">#fe104d</color>
 
     <color name="black_overlay">#66000000</color>
+
+
+    <color name="colorPri">#673ab7</color>
+    <color name="colorPriDark">#673ab7</color>
+    <color name="colorSecondary">#aa00ff</color>
+    <color name="colorRed">#ff2026</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorAmber">#FFC400</color>
 </resources>

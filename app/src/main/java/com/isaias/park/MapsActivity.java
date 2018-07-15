@@ -1,15 +1,12 @@
 package com.isaias.park;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -19,13 +16,10 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 
 import com.google.android.gms.location.places.AutocompleteFilter;
@@ -43,13 +37,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.firebase.database.ValueEventListener;
-import com.isaias.park.model.Parqueos;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,31 +69,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean mLocationPermissionGranted;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
-
-    List<Parqueos> parqueoList;
-    Parqueos model;
-    DatabaseReference databaseReference;
-
-    private static final LatLng punto1 = new LatLng(-17.797398, -63.190731);
-    private static final LatLng punto2 = new LatLng(-17.7961074, -63.1900271);
-    private static final LatLng punto3 = new LatLng(-17.795728, -63.189511);
-    private static final LatLng punto4 = new LatLng(-17.79673, -63.188387);
-    private static final LatLng punto5 = new LatLng(-17.794259, -63.187067);
-    private static final LatLng punto6 = new LatLng(-17.79496, -63.186896);
-    private static final LatLng punto7 = new LatLng(-17.796946, -63.187389);
-    private static final LatLng punto8 = new LatLng(-17.800362, -63.18733);
+    private DatabaseReference databaseReference;
+    private static final String PAR = "NOMBRE  ";
+    private static final String TAG = "ERROR  ";
+    private static final LatLng inicio = new LatLng(-17.783264, -63.182061);
 
 
+    /**
+     * Constructor
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
         //definicion de referencia a la BD
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("Parqueos");
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
+        //verificacion de servicios Google Maps
+        statusServices();
 
-        //verificacion de servicios actualizados de Google Maps
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        autocompleteFragment.setFilter(new AutocompleteFilter.Builder().setCountry("BO").build());
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                final LatLng latLngLoc = place.getLatLng();
+
+                if (marker != null) {
+                    marker.remove();
+                }
+                marker = mMap.addMarker(new MarkerOptions().position(latLngLoc).title(place.getName().toString()));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+            }
+
+            @Override
+            public void onError(Status status) {
+                Toast.makeText(MapsActivity.this, "" + status.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Verifica el Estado de los servicios de Google Maps
+     */
+    private void statusServices() {
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
 
         if (status == ConnectionResult.SUCCESS) {
@@ -112,42 +130,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             dialog.show();
         }
 
-
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-
-        autocompleteFragment.setFilter(new AutocompleteFilter.Builder().setCountry("BO").build());
-
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                final LatLng latLngLoc = place.getLatLng();
-
-                if(marker!=null){
-                    marker.remove();
-                }
-                marker = mMap.addMarker(new MarkerOptions().position(latLngLoc).title(place.getName().toString()));
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
-            }
-
-            @Override
-            public void onError(Status status) {
-                Toast.makeText(MapsActivity.this, ""+status.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
     }
 
-
-
     /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
+     * Inicializacion del Mapa Google Maps
+     *
+     * @param googleMap
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -166,41 +154,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addMarkersToMap();
 
         //efectos de camara sobre los puntos
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(punto1));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(inicio));
 
         //zoom para el marcador
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(punto1, 16));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(inicio, 14));
 
         //permisos para obtener ubicacion del usuario
         mylocation();
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                // The user has re-tapped on the marker which was already showing an info window.
-                if (marker.equals(mSelectedMarker)) {
-                    // Retorna true indicando que consumismos el evento
-                    mesjoff();
-
-                    mMap.clear();
-                    addMarkersToMap();
-                    mSelectedMarker = null;
-                    return true;
-                }
-                //registra el marcador
-                mSelectedMarker = marker;
-                mSelectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
-                mesjok();
-                //traza su ruta
-                String url = obtenerDireccionesURL(userLocation, marker.getPosition());
-                DownloadTask downloadTask = new DownloadTask();
-                downloadTask.execute(url);
-
-                //retorna falso indicando que no consume el evento
-                return false;
-            }
-        });
-
+        //Seleccion de Icono
+        selectIcon();
 
         //Obtener la Ubicacion actual del dispositivo y establecer la posicion actual en el mapa
         getDeviceLocation();
@@ -209,16 +172,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updateLocationUI();
     }
 
-    private void mesjoff() {
-        Toast.makeText(this, "Limpiando ruta", Toast.LENGTH_SHORT).show();
-    }
-
-    private void mesjok() {
-        Toast.makeText(this, "Dibujando ruta", Toast.LENGTH_SHORT).show();
-    }
-
-
-    //Metodo para habilitar la capa Location
+    /**
+     * Habilita la capa de Localizacion
+     */
     private void getDeviceLocation() {
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -233,6 +189,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Se habilitan los permisos para Acceder a la Ubicacion
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -247,7 +210,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    //
+    /**
+     * Acutaliza la localizacion del dispositivo
+     */
     private void updateLocationUI() {
         if (mMap == null) {
             return;
@@ -266,89 +231,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
-    // marcadores
+    /**
+     * Agregamos los marcadores, desde la BD de firebase
+     */
     private void addMarkersToMap() {
-//        String name,dire,tele;
+        databaseReference.child("Parqueos");
+        databaseReference.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // Get parqueo values
+                        // Parqueos p = dataSnapshot.getValue(Parqueos.class);
+                        // Log.e(PAR, p.NOMBRE);
 
-        //leeremos un objeto de tipo Estudiante
-//        GenericTypeIndicator<Parqueos> t = new GenericTypeIndicator<Parqueos>() {};
-//        Parqueos paqueo = dataSnapshot.getValue(t);
+                        for (DataSnapshot templateSnapshot : dataSnapshot.getChildren()) {
+                            for (DataSnapshot snap : templateSnapshot.getChildren()) {
 
+                                // Log.e(PAR, String.valueOf(snap.child("NOMBRE").getValue()));
+                                Log.e(PAR, String.valueOf(snap));
 
-//        String[] latlong =  "-34.8799074,174.7565664".split(",");
-//        double latitude = Double.parseDouble(latlong[0]);
-//        double longitude = Double.parseDouble(latlong[1]);
-//        LatLng location = new LatLng(latitude, longitude);
+                                String nom, dir;
+                                double xlog, ylat;
+                                float col;
+                                nom = String.valueOf(snap.child("NOMBRE").getValue());
+                                dir = String.valueOf(snap.child("DIRECCION").getValue());
 
-//             name = parqueoList.get(1).NOMBRE;
-//             dire = parqueoList.get(1).DIRECCION;
+                                try {
 
-//           double lat = Double.parseDouble(parqueoList.get(1).ylatitud);
-//           double log = Double.parseDouble(parqueoList.get(1).xlongitud);
-//           punto = new LatLng(lat,log);
+                                    xlog = Double.parseDouble(String.valueOf(snap.child("xlongitud").getValue()));
+                                    ylat = Double.parseDouble(String.valueOf(snap.child("ylatitud").getValue()));
 
+                                    //color del icono, estado de disponibilidida del parqueo
+                                    col = colorIcon(String.valueOf(snap.child("Estado").getValue()));
 
-        Toast.makeText(getApplicationContext(),"ok", Toast.LENGTH_SHORT);
+                                    // Anadimos el marcador
+                                    mMap.addMarker(new MarkerOptions()
+                                            .position(new LatLng(ylat, xlog))
+                                            .title(nom)
+                                            .snippet(dir)
+                                            .icon(BitmapDescriptorFactory.defaultMarker(col)));
 
+                                } catch (Exception e) {
+                                    System.out.println("El error es: " + e.getMessage());
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
 
-//             mMap.addMarker(new MarkerOptions()
-//                     .position(punto1)
-//                     .title(parqueoList.get(1).NOMBRE)
-//                     .snippet(parqueoList.get(1).DIRECCION)
-//                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-//             );
-
-
-//        mMap.addMarker(new MarkerOptions()
-//                .position(punto1)
-//                .title("Parque Fatima")
-//                .snippet("Av. Grigota, Calle Antonio Suarez")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
-//        mMap.addMarker(new MarkerOptions()
-//                .position(punto2)
-//                .title("Parque Grigota")
-//                .snippet("Av. Grigota, Entre Mariano Duran y Jose Salvatierra")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(punto3)
-//                .title("Parqueo FUNSAR")
-//                .snippet("Av. Grigota, Calle Mariano Duran Canelas")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(punto4)
-//                .title("Parque Aladino 2")
-//                .snippet("Calle Juan Manuel Aponte")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(punto5)
-//                .title("Parque Mercado Modelo Grigota")
-//                .snippet("Av. Omar Chavez Ortiz")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(punto6)
-//                .title("SN" + '\n' + "Av. Omar Chavez Ortiz")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(punto7)
-//                .title("Parqueo PRINX")
-//                .snippet("Av. Omar Chavez Ortiz, Calle Pauro")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-//
-//        mMap.addMarker(new MarkerOptions()
-//                .position(punto8)
-//                .title("Parqueo Melfi Chucallo")
-//                .snippet("Calle Iganacio Ceballos")
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w(TAG, "Conexion Internet Lenta", databaseError.toException());
+                        Toast.makeText(MapsActivity.this, "Conexion Internet Lenta.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-    //ubicacion del usuario
+
+    /**
+     * Determina la ubicacion del Dipositivo
+     */
     private void mylocation() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -375,7 +318,80 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    //    Trazar ruta ORIGEN y DESTINO
+    /**
+     * Metodo que Verfica el Estado de Seleccion del Icono
+     */
+    public void selectIcon() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                // The user has re-tapped on the marker which was already showing an info window.
+                if (marker.equals(mSelectedMarker)) {
+                    // Retorna true indicando que consumismos el evento
+                    mesjoff();
+
+                    mMap.clear();
+                    addMarkersToMap();
+                    mSelectedMarker = null;
+                    return true;
+                }
+                //registra el marcador
+                mSelectedMarker = marker;
+                mSelectedMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                mesjok();
+
+                //traza su ruta
+                //Establecemos nuestro destino y origen,
+                // mandamos ejecutar una tarea de descarga en segundo plano.
+                String url = obtenerDireccionesURL(userLocation, marker.getPosition());
+                DownloadTask downloadTask = new DownloadTask();
+                downloadTask.execute(url);
+
+                //retorna falso indicando que no consume el evento
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Determina el color del Icono segun la disponibilidad
+     *
+     * @param x
+     * @return
+     */
+    private float colorIcon(String x) {
+        float color;
+        if (x.equals("Ocupado")) {
+            color = 240.0f;  //OCUPADO = AZUL
+        } else {
+            color = 120.00f; //LIBRE = VERDE
+        }
+        return color;
+    }
+
+    /**
+     * Mensaje
+     */
+    private void mesjoff() {
+        Toast.makeText(this, "Limpiando ruta", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Mensaje
+     */
+    private void mesjok() {
+        Toast.makeText(this, "Dibujando ruta", Toast.LENGTH_SHORT).show();
+    }
+
+
+    /**
+     * En este metodo lo que hacemos es construir la url que mandaremos al web service de google maps
+     * para obtener una serie de puntos con la ruta a seguir, o pintar en este caso.
+     *
+     * @param origin punto de partida
+     * @param dest   punto de destino
+     * @return devuelve la ruta
+     */
     private String obtenerDireccionesURL(LatLng origin, LatLng dest) {
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
@@ -386,6 +402,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return url;
     }
 
+    /**
+     * Ruta
+     *
+     * @param strUrl
+     * @return
+     * @throws IOException
+     */
     private String downloadUrl(String strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;
@@ -416,6 +439,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return data;
     }
 
+    /**
+     * Recordando que esta ruta que obtenemos con el metodo obtenerDireccionesURL
+     * lo mandamos a una tarea de descarga en segundo plano
+     */
     private class DownloadTask extends AsyncTask<String, Void, String> {
 
         @SuppressLint("LongLogTag")
@@ -429,6 +456,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             return data;
         }
+
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
@@ -437,6 +465,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Conectar con el web service y obtener el resultado, lo solicitamos en formato JSON,
+     * despues mandamos llamar una tarea asincrona para interpretar el resultado,
+     * mismo que le pasamos como parametro
+     */
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
         @Override
@@ -483,6 +516,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Por ultimo lo que hacemos aqui es interpretar el resultado del web service de Google Maps
+     * al que le mandamos nuestros puntos, crear los puntos que conforman la ruta desde el punto A hasta el punto B,
+     * darles un ancho y un color para para al final agregarlo a todo al mapa como una poyline.
+     */
     public class DirectionsJSONParser {
 
         public List<List<HashMap<String, String>>> parse(JSONObject jObject) {
@@ -508,8 +546,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             for (int l = 0; l < list.size(); l++) {
                                 HashMap<String, String> hm = new HashMap<String, String>();
-                                hm.put("lat", Double.toString(((LatLng) list.get(l)).latitude));
-                                hm.put("lng", Double.toString(((LatLng) list.get(l)).longitude));
+                                hm.put("lat", Double.toString((list.get(l)).latitude));
+                                hm.put("lng", Double.toString((list.get(l)).longitude));
                                 path.add(hm);
                             }
                         }
@@ -555,13 +593,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         (((double) lng / 1E5)));
                 poly.add(p);
             }
-
             return poly;
         }
     }
-
-
-
-
 
 }

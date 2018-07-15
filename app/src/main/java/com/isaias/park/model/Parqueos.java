@@ -1,11 +1,15 @@
 package com.isaias.park.model;
 
-import android.graphics.Paint;
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
 
-import com.google.android.gms.maps.model.LatLng;
+import java.util.HashMap;
+import java.util.Map;
 
+@IgnoreExtraProperties
 public class Parqueos {
 
+    public String NOMBRE;
     public String DIRECCION;
     public String TELEFONO;
     public String HORARIO;
@@ -21,11 +25,11 @@ public class Parqueos {
 
 
     public Parqueos(){
-
+        // Default constructor required for calls to DataSnapshot.getValue(Parqueos.class)
     }
 
 
-    public Parqueos(String NOMBRE,String DIRECCION,String TELEFONO,String HORARIO,String Tipo, String Capacidad,
+    public Parqueos(String NOMBRE,String DIRECCION,String TELEFONO,String HORARIO,String TIPO, String CAPACIDAD,
                     String PrecioxHor, String PrecioxDia, String PrecioxMes, String Estado, String xlongitud, String ylatitud){
         this.NOMBRE = NOMBRE;
         this.DIRECCION = DIRECCION;
@@ -42,103 +46,24 @@ public class Parqueos {
     }
 
 
+    // [START post_to_map]
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("NOMBRE", NOMBRE);
+        result.put("DIRECCION", DIRECCION);
+        result.put("TELEFONO", TELEFONO);
+        result.put("HORARIO", HORARIO);
+        result.put("TIPO", TIPO);
+        result.put("CAPACIDAD", CAPACIDAD);
+        result.put("PrecioxHor", PrecioxHor);
+        result.put("PrecioxDia", PrecioxDia);
+        result.put("PrecioxMes", PrecioxMes);
+        result.put("Estado", Estado);
+        result.put("xlongitud", xlongitud);
+        result.put("ylatitud", ylatitud);
 
-    public String NOMBRE;
-
-    public String getNOMBRE() {
-        return NOMBRE;
-    }
-
-    public void setNOMBRE(String NOMBRE) {
-        this.NOMBRE = NOMBRE;
-    }
-
-    public String getDIRECCION() {
-        return DIRECCION;
-    }
-
-    public void setDIRECCION(String DIRECCION) {
-        this.DIRECCION = DIRECCION;
-    }
-
-    public String getTELEFONO() {
-        return TELEFONO;
-    }
-
-    public void setTELEFONO(String TELEFONO) {
-        this.TELEFONO = TELEFONO;
-    }
-
-    public String getHORARIO() {
-        return HORARIO;
-    }
-
-    public void setHORARIO(String HORARIO) {
-        this.HORARIO = HORARIO;
-    }
-
-    public String getTIPO() {
-        return TIPO;
-    }
-
-    public void setTIPO(String TIPO) {
-        this.TIPO = TIPO;
-    }
-
-    public String getCAPACIDAD() {
-        return CAPACIDAD;
-    }
-
-    public void setCAPACIDAD(String CAPACIDAD) {
-        this.CAPACIDAD = CAPACIDAD;
-    }
-
-    public String getPrecioxHor() {
-        return PrecioxHor;
-    }
-
-    public void setPrecioxHor(String precioxHor) {
-        PrecioxHor = precioxHor;
-    }
-
-    public String getPrecioxDia() {
-        return PrecioxDia;
-    }
-
-    public void setPrecioxDia(String precioxDia) {
-        PrecioxDia = precioxDia;
-    }
-
-    public String getPrecioxMes() {
-        return PrecioxMes;
-    }
-
-    public void setPrecioxMes(String precioxMes) {
-        PrecioxMes = precioxMes;
-    }
-
-    public String getEstado() {
-        return Estado;
-    }
-
-    public void setEstado(String estado) {
-        Estado = estado;
-    }
-
-    public String getXlongitud() {
-        return xlongitud;
-    }
-
-    public void setXlongitud(String xlongitud) {
-        this.xlongitud = xlongitud;
-    }
-
-    public String getYlatitud() {
-        return ylatitud;
-    }
-
-    public void setYlatitud(String ylatitud) {
-        this.ylatitud = ylatitud;
+        return result;
     }
 
 

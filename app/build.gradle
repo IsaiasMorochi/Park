@@ -50,6 +50,5 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.1.1'
 }
 
-
 // ADD THIS AT THE BOTTOM
 apply plugin: 'com.google.gms.google-services'
