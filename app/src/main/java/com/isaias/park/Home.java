@@ -20,7 +20,7 @@ import java.io.BufferedReader;
 
 public class Home extends AppCompatActivity {
 
-    private ImageView mapa;
+    private ImageView mapa,precio;
     private AlertDialog alert = null;
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -30,16 +30,24 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        mapa = (ImageView) findViewById(R.id.mapa);
+        mapa = findViewById(R.id.mapa);
+        precio = findViewById(R.id.precio);
 
         mapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Intent intemap = new Intent(Home.this, MapsActivity.class);
-                startActivity(intemap);
+                Intent inten = new Intent(Home.this, MapsActivity.class);
+                startActivity(inten);
             }
         });
+
+//        precio.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent inten = new Intent(Home.this, ParqueoActivity.class);
+//                startActivity(inten);
+//            }
+//        });
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if(!locationManager.isProviderEnabled( LocationManager.GPS_PROVIDER)){

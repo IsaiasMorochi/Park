@@ -33,6 +33,7 @@
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/precio"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:background="@drawable/cerclebackgroundpurple"
@@ -77,6 +78,7 @@
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/ideas"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:background="@drawable/cerclebackgroundpink"
@@ -130,6 +132,7 @@
                 android:orientation="vertical">
 
                 <ImageView
+                    android:id="@+id/anadir"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:background="@drawable/cerclebackgroundgreen"

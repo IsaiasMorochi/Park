@@ -24,7 +24,7 @@ public class Parqueos {
 
 
 
-    public Parqueos(){
+    public Parqueos(String italia, String s, String s1){
         // Default constructor required for calls to DataSnapshot.getValue(Parqueos.class)
     }
 
@@ -45,6 +45,30 @@ public class Parqueos {
         this.ylatitud = ylatitud;
     }
 
+
+    public String getNombre() {
+        return NOMBRE;
+    }
+
+    public void setNombre(String NOMBRE) {
+        this.NOMBRE = NOMBRE;
+    }
+
+    public String getDireccion() {
+        return DIRECCION;
+    }
+
+    public void setDireccion(String DIRECCION) {
+        this.DIRECCION = DIRECCION;
+    }
+
+    public String getHorario() {
+        return HORARIO;
+    }
+
+    public void setHorario(String HORARIO) {
+        this.HORARIO = HORARIO;
+    }
 
     // [START post_to_map]
     @Exclude

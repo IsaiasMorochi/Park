@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Park</string>
     <string name="title_activity_maps">Map</string>
+    <string name="horario_de_atencion">Horario de atencion</string>
+    <string name="direccion">Direccion</string>
+    <string name="nombre">Nombre</string>
 </resources>
